@@ -2,6 +2,9 @@ import web_ui
 import camera
 import printer
 import asyncio
+import queue
+
+log_queue = queue.Queue()
 
 async def main():
     # await printer.initialize()
