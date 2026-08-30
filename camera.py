@@ -3,10 +3,20 @@ import time
 from PIL import Image
 from picamera2 import Picamera2
 
-picam2 = Picamera2()
-config = picam2.create_video_configuration(main={"size": (640, 480), "format": "BGR888"})
-picam2.configure(config)
-picam2.start()
+picam2 = None
+
+def initialize():
+    global picam2
+    
+    try:
+        picam2 = Picamera2()
+        config = picam2.create_video_configuration(main={"size": (640, 480), "format": "BGR888"})
+        picam2.configure(config)
+        picam2.start()
+
+        return True
+    except:
+        return False
 
 def generate_frames(stream_quality):
     while True:
