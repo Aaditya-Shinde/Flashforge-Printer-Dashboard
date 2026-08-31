@@ -10,6 +10,7 @@ def initialize():
     global picam2
     
     try:
+        common.log_event("Scanning for Camera...")
         picam2 = Picamera2()
         common.log_event("Camera Found")
         config = picam2.create_video_configuration(main={"size": (640, 480), "format": "BGR888"})
@@ -20,10 +21,10 @@ def initialize():
         common.log_event("Camera Initialized")
         return True
     except RuntimeError as e:
-        # if 'No camera number 0 found' in str(e):
-        #     common.log_event("Camera Not Found")
-        # else:
-        common.log_event(f"Unkown Camera Error: {e}...")
+        if 'No camera number 0 found' in str(e):
+            common.log_event("Camera Not Found")
+        else:
+            common.log_event(f"Unkown Camera Error: {e}...")
         return False
 
 def generate_frames(stream_quality):

@@ -6,7 +6,7 @@ import printer
 import asyncio
 
 async def main():
-    printer.initialize()
+    await printer.initialize()
     common.camera_found = camera.initialize()
 
     web_ui.start_app()

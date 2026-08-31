@@ -56,13 +56,31 @@
                 border-left: 3px solid var(--green-bright);
             }
 
+            /* Pure Flexbox Layout */
             .container {
-                display: grid;
-                grid-template-columns: 260px 1fr 260px;
+                display: flex;
                 gap: 12px;
                 width: 100%;
                 max-width: 1200px;
                 flex-grow: 1;
+            }
+
+            /* Left side column (3) */
+            .container > .box:nth-child(1) {
+                flex: 3;
+                min-width: 0;
+            }
+
+            /* Center column (2) */
+            .container > .box:nth-child(2) {
+                flex: 6;
+                min-width: 0;
+            }
+
+            /* Right side log column (3) */
+            .container > .box:nth-child(3) {
+                flex: 3;
+                min-width: 0;
             }
 
             .box {
@@ -72,6 +90,7 @@
                 display: flex;
                 flex-direction: column;
                 gap: 8px;
+                box-sizing: border-box;
             }
 
             .box-title {
@@ -92,12 +111,12 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                height: 480px;
+                aspect-ratio: 4 / 3;
                 width: 100%;
                 background: #000;
                 color: var(--green-bright);
                 font-family: 'Press Start 2P', monospace;
-                font-size: 14px;
+                font-size: 12px;
                 text-align: center;
                 border: 1px solid var(--border-subtle);
                 box-sizing: border-box;
@@ -113,7 +132,7 @@
             }
 
             .ascii-window::before {
-                content: "[CAM_FEED_00]";
+                content: "[CAM_FEED_01]";
                 position: absolute;
                 top: -9px;
                 left: 8px;
@@ -123,12 +142,13 @@
                 color: var(--green-mid);
             }
 
-            /* Video stream: Resized ONLY, absolutely zero filters */
+            /* Aspect ratio preserved automatically */
             img {
                 display: block;
                 width: 100%;
                 height: auto;
-                max-height: 480px;
+                aspect-ratio: 4 / 3;
+                object-fit: contain;
             }
 
             .control-panel {
@@ -173,7 +193,7 @@
             .progress-bar {
                 background: var(--green-bright);
                 height: 12px;
-                width: 35%; /* Constant variable placeholder */
+                width: 35%;
             }
 
             .progress-info {
@@ -186,7 +206,12 @@
 
             @media (max-width: 900px) {
                 .container {
-                    grid-template-columns: 1fr;
+                    flex-direction: column;
+                }
+                .container > .box:nth-child(1),
+                .container > .box:nth-child(2),
+                .container > .box:nth-child(3) {
+                    flex: 1 1 auto;
                 }
             }
         </style>
