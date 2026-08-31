@@ -1,3 +1,4 @@
+import common
 import io
 import time
 from PIL import Image
@@ -10,12 +11,19 @@ def initialize():
     
     try:
         picam2 = Picamera2()
+        common.log_event("Camera Found")
         config = picam2.create_video_configuration(main={"size": (640, 480), "format": "BGR888"})
         picam2.configure(config)
+        common.log_event("Camera Configured")
         picam2.start()
 
+        common.log_event("Camera Initialized")
         return True
-    except:
+    except RuntimeError as e:
+        # if 'No camera number 0 found' in str(e):
+        #     common.log_event("Camera Not Found")
+        # else:
+        common.log_event(f"Unkown Camera Error: {e}...")
         return False
 
 def generate_frames(stream_quality):

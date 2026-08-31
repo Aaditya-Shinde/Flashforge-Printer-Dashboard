@@ -2,7 +2,7 @@
     <html>
     <head>
         <meta charset="UTF-8">
-        <title>TERMINAL // 3D_PRINTER_CTRL</title>
+        <title>Flashforge Control Center</title>
         <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
         <style>
             :root {
@@ -113,7 +113,7 @@
             }
 
             .ascii-window::before {
-                content: "[CAM_FEED_01]";
+                content: "[CAM_FEED_00]";
                 position: absolute;
                 top: -9px;
                 left: 8px;
@@ -242,11 +242,6 @@
             <div class="box">
                 <div class="box-title">> EVENT_LOG</div>
                 <div id="event-log-content" class="log-text" style="font-size: 15px;">
-                    [00:01:02] Socket bound to port 5000<br>
-                    [00:01:05] Picamera2 pipeline ready<br>
-                    [00:01:10] Handshake acknowledged<br>
-                    [00:02:14] Streaming channel open<br>
-                    [00:02:40] Awaiting print commands...
                 </div>
             </div>
         </div>
@@ -268,11 +263,27 @@
                     const logContainer = document.getElementById('event-log-content');
                     const timestamp = new Date().toTimeString().split(' ')[0];
                     
-                    // Log upload action & Pi receipt simulation
                     logContainer.innerHTML += `<br>[${timestamp}] File selected: ${fileName}`;
-                    logContainer.innerHTML += `<br>[${timestamp}] Pi payload buffer received successfully.`;
+                    logContainer.innerHTML += `<br>[${timestamp}] Pi payload buffer received successfully.`;//move to actual python backend
                 }
             }
+
+            async function fetchInitialLogs() {
+                try {
+                    const response = await fetch('/logs');
+                    const logs = await response.json();
+                    const logContainer = document.getElementById('event-log-content');
+                    if (logs.length > 0) {
+                        logContainer.innerHTML = logs.join('<br>');
+                        logContainer.scrollTop = logContainer.scrollHeight;
+                    }
+                } catch (err) {
+                    console.error('Error loading initial logs:', err);
+                }
+            }
+
+            fetchInitialLogs();
+
             const evtSource = new EventSource('/stream_logs');
             evtSource.onmessage = function(event) {
                 const data = JSON.parse(event.data);
