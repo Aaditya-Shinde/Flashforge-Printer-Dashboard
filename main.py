@@ -8,6 +8,9 @@ import asyncio
 async def main():
     # await printer.initialize()
     common.camera_found = camera.initialize()
+
+    common.log_event("Test Message")    
+
     web_ui.start_app()
 
 
