@@ -2,8 +2,9 @@ import common
 import camera
 import printer
 
-import json
 from flask import Flask, Response, stream_with_context, jsonify
+import json
+import asyncio
 import time
 
 
@@ -18,7 +19,7 @@ def get_logs():
 def stream_printer_stats():
     def event_stream():
         while True:
-            yield printer.get_stats()
+            yield asyncio.run(printer.get_stats())
             time.sleep(0.2)
             
     return Response(stream_with_context(event_stream()), mimetype="text/event-stream")

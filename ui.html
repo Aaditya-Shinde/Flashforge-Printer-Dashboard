@@ -323,7 +323,7 @@
             const printerEvtSource = new EventSource('/printer_stats');
             printerEvtSource.onmessage = function(event){
                 const data = JSON.parse(event.data);
-                printerStatsContainer.innerHTML += `<div>STATE: <span style="color: var(--green-bright);">${data.state}</span></div>
+                printerStatsContainer.innerHTML = `<div>STATE: <span style="color: var(--green-bright);">${data.state}</span></div>
                 <div>NOZZLE_TEMP: 24.0°C / 200°C</div>
                 <div>BED_TEMP: 25.0°C / 60°C</div>
                 <div>FAN_SPEED: 0%</div>`;

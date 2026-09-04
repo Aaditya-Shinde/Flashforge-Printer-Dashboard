@@ -63,8 +63,8 @@ async def print_file_path(file_path):
     common.log_event("file_path upload complete.")
 
 async def get_stats():
-    if not printer_client == None:
+    if printer_client is None:
         return f"data: {json.dumps({'state': 'NOT_FOUND'})}\n\n"
     
-    state = await printer_client.info.get_machine_state().name
+    state = (await printer_client.info.get_machine_state()).name
     return f"data: {json.dumps({'state': state})}\n\n"
