@@ -2,6 +2,7 @@ import queue
 import time
 
 camera_found = False
+printer_found = False
 logs = []
 
 def log_event(message):

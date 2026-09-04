@@ -227,10 +227,12 @@
             <!-- Left Box: Printer Stats -->
             <div class="box">
                 <div class="box-title">> PRINTER_STATS</div>
-                <div>STATE: <span style="color: var(--green-bright);">IDLE</span></div>
-                <div>NOZZLE_TEMP: 24.0°C / 200°C</div>
-                <div>BED_TEMP: 25.0°C / 60°C</div>
-                <div>FAN_SPEED: 0%</div>
+                <div id="printer-stats-content">
+                    <div>STATE: <span style="color: var(--green-bright);">IDLE</span></div>
+                    <div>NOZZLE_TEMP: 24.0°C / 200°C</div>
+                    <div>BED_TEMP: 25.0°C / 60°C</div>
+                    <div>FAN_SPEED: 0%</div>
+                </div>
                 
                 <div style="margin-top: 10px;" class="box-title">> SYSTEM_NODES</div>
                 <div class="log-text">
@@ -309,13 +311,24 @@
 
             fetchInitialLogs();
 
-            const evtSource = new EventSource('/stream_logs');
-            evtSource.onmessage = function(event) {
+            const logContainer = document.getElementById('event-log-content');
+            const logEvtSource = new EventSource('/stream_logs');
+            logEvtSource.onmessage = function(event) {
                 const data = JSON.parse(event.data);
-                const logContainer = document.getElementById('event-log-content');
                 logContainer.innerHTML += `<br>${data.log}`;
                 logContainer.scrollTop = logContainer.scrollHeight;
             };
+
+            const printerStatsContainer = document.getElementById('printer-stats-content');
+            const printerEvtSource = new EventSource('/printer_stats');
+            printerEvtSource.onmessage = function(event){
+                const data = JSON.parse(event.data);
+                printerStatsContainer.innerHTML += `<div>STATE: <span style="color: var(--green-bright);">${data.state}</span></div>
+                <div>NOZZLE_TEMP: 24.0°C / 200°C</div>
+                <div>BED_TEMP: 25.0°C / 60°C</div>
+                <div>FAN_SPEED: 0%</div>`;
+                printerStatsContainer.scrollTop = logContainer.scrollHeight;
+            }
         </script>
 
     </body>

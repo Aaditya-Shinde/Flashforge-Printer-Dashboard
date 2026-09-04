@@ -1,6 +1,7 @@
 import common
 import asyncio
 import os
+import json
 from flashforge import FlashForgeClient, FiveMClientConnectionOptions, PrinterDiscovery
 from dotenv import load_dotenv
 
@@ -45,6 +46,7 @@ async def initialize():
         options=options,
     )
     common.log_event("Printer client authentication successful")
+    common.printer_found = True
 
     await printer_client.init_control()
     common.log_event("Printer client initialized")
@@ -60,8 +62,9 @@ async def print_file_path(file_path):
     await printer_client.job_control.upload_file_path(file_path, start_print=True, level_before_print=False)
     common.log_event("file_path upload complete.")
 
-async def get_status():
-    status = await printer_client.get_printer_client_status()
-    if not status:
-        raise ValueError("Invalid State")
-    return status #status has temps, state, eta, ...
+async def get_stats():
+    if not printer_client == None:
+        return f"data: {json.dumps({'state': 'NOT_FOUND'})}\n\n"
+    
+    state = await printer_client.info.get_machine_state().name
+    return f"data: {json.dumps({'state': state})}\n\n"

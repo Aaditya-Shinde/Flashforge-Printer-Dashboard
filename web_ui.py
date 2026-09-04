@@ -1,5 +1,6 @@
 import common
 import camera
+import printer
 
 import json
 from flask import Flask, Response, stream_with_context, jsonify
@@ -12,6 +13,15 @@ html_code = "\n".join(open("ui.html").readlines())
 @app.route('/logs')
 def get_logs():
     return jsonify(common.logs)
+
+@app.route('/printer_stats')
+def stream_printer_stats():
+    def event_stream():
+        while True:
+            yield printer.get_stats()
+            time.sleep(0.2)
+            
+    return Response(stream_with_context(event_stream()), mimetype="text/event-stream")
 
 @app.route('/stream_logs')
 def stream_logs():
