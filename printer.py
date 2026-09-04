@@ -67,4 +67,5 @@ async def get_stats():
         return f"data: {json.dumps({'state': 'NOT_FOUND'})}\n\n"
     
     state = (await printer_client.info.get_machine_state()).name
+    print(await printer_client.get_temperatures())
     return f"data: {json.dumps({'state': state})}\n\n"
