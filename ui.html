@@ -228,16 +228,16 @@
             <div class="box">
                 <div class="box-title">> PRINTER_STATS</div>
                 <div id="printer-stats-content">
-                    <div>STATE: <span style="color: var(--green-bright);">IDLE</span></div>
-                    <div>NOZZLE_TEMP: 24.0°C / 200°C</div>
+                    <div>STATE: <span style="color: var(--green-bright);">UNKOWN</span></div>
+                    <!-- <div>NOZZLE_TEMP: 24.0°C / 200°C</div>
                     <div>BED_TEMP: 25.0°C / 60°C</div>
-                    <div>FAN_SPEED: 0%</div>
+                    <div>FAN_SPEED: 0%</div> -->
                 </div>
                 
                 <div style="margin-top: 10px;" class="box-title">> SYSTEM_NODES</div>
                 <div class="log-text" id="system-nodes">
-                    > ad5m_tcp: unreachable<br>
-                    > pi_cam: unreachable<br>
+                    > ad5m_tcp: unkown<br>
+                    > pi_cam: unkown<br>
                 </div>
             </div>
 
@@ -337,6 +337,9 @@
 
                 if (data.state == "NOT_FOUND" || data.state == "UNKNOWN" || data.state == "ERROR"){
                     printerStatsContainer.innerHTML = `<div>STATE: <span style="color: var(--green-bright);">${data.state}</span></div>`;
+
+                    let curr = document.getElementById("system-nodes").innerHTML.split("<br>");
+                    document.getElementById("system-nodes").innerHTML = "> ad5m_tcp: unreachable<br>"+curr[1]+"<br>";
                 } else {
                     printerStatsContainer.innerHTML = `
                         <div>STATE: <span style="color: var(--green-bright);">${data.state}</span></div>
