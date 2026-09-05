@@ -235,17 +235,16 @@
                 </div>
                 
                 <div style="margin-top: 10px;" class="box-title">> SYSTEM_NODES</div>
-                <div class="log-text">
-                    > ad5m_tcp: active<br>
-                    > pi_cam: streaming<br>
-                    > spool_monitor: ok
+                <div class="log-text" id="system-nodes">
+                    > ad5m_tcp: unreachable<br>
+                    > pi_cam: unreachable<br>
                 </div>
             </div>
 
             <!-- Center Box: Video Stream & File Upload + Progress Bar -->
             <div class="box" style="align-items: center; border-left: none; background: transparent; padding: 0;">
                 <div class="ascii-window" style="width: 100%; box-sizing: border-box;" id="stream-wrapper">
-                    <img src="/video_feed" width="640" height="480" alt="Video Feed" id="video-element" onerror="showCameraError()">
+                    <img src="/video_feed" width="640" height="480" id="video-element" onerror="showCameraError()" onload="cameraNodeStatus()">
                 </div>
                 
                 <div class="control-panel" style="width: 100%; box-sizing: border-box; margin-top: 8px;">
@@ -281,6 +280,13 @@
                         [CAMERA NOT FOUND]
                     </div>
                 `;
+                let curr = document.getElementById("system-nodes").innerHTML.split("<br>");
+                document.getElementById("system-nodes").innerHTML = curr[0]+"<br>> pi_cam: unreachable<br>";
+            }
+
+            function cameraNodeStatus() {
+                let curr = document.getElementById("system-nodes").innerHTML.split("<br>");
+                document.getElementById("system-nodes").innerHTML = curr[0]+"<br>> pi_cam: streaming<br>";
             }
 
             function fileUploadHandler() {
@@ -295,14 +301,19 @@
                 }
             }
 
+            function addLog(logMessage){
+                        
+                logContainer.innerHTML += `${logMessage}<br>`;
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+
             async function fetchInitialLogs() {
                 try {
                     const response = await fetch('/logs');
                     const logs = await response.json();
                     const logContainer = document.getElementById('event-log-content');
-                    if (logs.length > 0) {
-                        logContainer.innerHTML = logs.join('<br>');
-                        logContainer.scrollTop = logContainer.scrollHeight;
+                    for (let i=0; i<logs.length; i++) {
+                        addLog(logs[i]);
                     }
                 } catch (err) {
                     console.error('Error loading initial logs:', err);
