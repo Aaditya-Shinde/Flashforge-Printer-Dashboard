@@ -16,13 +16,9 @@ async def initialize():
         common.log_event('CHECK_CODE not set')
 
     discovery = PrinterDiscovery()
-    try:
-        async with asyncio.timeout(1) as cm:
-            common.log_event("Scanning for printer clients...")
-            printer_clients = await discovery.discover()
-    except asyncio.TimeoutError:
-        common.log_event("No printer clients found")
-        return
+
+    common.log_event("Scanning for printer clients...")
+    printer_clients = await discovery.discover()
         
     if not printer_clients:
         common.log_event("No printer clients found")
@@ -66,6 +62,5 @@ async def get_stats():
     if printer_client is None:
         return f"data: {json.dumps({'state': 'NOT_FOUND'})}\n\n"
     
-    state = (await printer_client.info.get_machine_state()).name
-    print(await printer_client.get_temperatures())
-    return f"data: {json.dumps({'state': state})}\n\n"
+    status = await printer_client.get_printer_status()
+    return f"data: {json.dumps({'state': status.machine_state})}\n\n"
