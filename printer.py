@@ -47,6 +47,8 @@ async def initialize():
     await printer_client.init_control()
     common.log_event("Printer client initialized")
 
+    asyncio.create_task(start_status_poller())
+
 async def start_status_poller():
     global printer_client
     while True:
