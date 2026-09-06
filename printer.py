@@ -12,65 +12,69 @@ async def initialize():
     global printer_client
 
     check_code = os.getenv("CHECK_CODE", "").strip()
-    if not check_code:
-        common.log_event('CHECK_CODE not set')
+    expected_serial = os.getenv("EXPECTED_SERIAL_NUMBER", "").strip()
 
+    print("Scanning for FlashForge printers...")
     discovery = PrinterDiscovery()
+    printers = await discovery.discover()
 
-    common.log_event("Scanning for printer clients...")
-    printer_clients = await discovery.discover()
-        
-    if not printer_clients:
-        common.log_event("No printer clients found")
+    if not printers:
+        print("No printers found via network discovery.")
         return
 
-    common.log_event("Printer client found")
-    printer_client = printer_clients[0]
-    if not printer_client.serial_number:
-        common.log_event("No serial number reported")
-        return
+    target_printer = printers[0]
+    if expected_serial:
+        for p in printers:
+            if p.serial_number == expected_serial:
+                target_printer = p
+                break
 
+    print(f"Connecting to printer at {target_printer.ip_address} (Serial: {target_printer.serial_number})...")
+    
     options = FiveMClientConnectionOptions(
-        http_port=printer_client.event_port,
-        tcp_port=printer_client.command_port,
+        http_port=target_printer.event_port,
+        tcp_port=target_printer.command_port,
     )
 
-    printer_client = FlashForgeClient(
-        printer_client.ip_address,
-        printer_client.serial_number,
+    async with FlashForgeClient(
+        target_printer.ip_address,
+        target_printer.serial_number,
         check_code,
         options=options,
-    )
-    common.log_event("Printer client authentication successful")
-    common.printer_found = True
+    ) as client:
+        print("Connection established. Initializing control session...")
+        await client.init_control()
+        printer_client = client
 
-    await printer_client.init_control()
-    common.log_event("Printer client initialized")
-
-    asyncio.create_task(start_status_poller())
+    await start_status_poller()
 
 async def start_status_poller():
     global printer_client
-    while True:
-        await asyncio.sleep(1)
-        if printer_client is None:
-            continue
 
+    print("In status poller")
+
+    while True:
         try:
             status = await printer_client.get_printer_status()
             if status:
                 common.printer_status = status
+                print(f"[POLL SUCCESS] Machine State: {status.machine_state}")
         except:
             continue
+        
+        await asyncio.sleep(2)
 
 async def get_stats():
     status = common.printer_status
-    
-    return f"data: {json.dumps({'state': status.machine_state})}\n\n"
+
+    state = status.machine_state
+    state_str = state.name if hasattr(state, 'name') else str(state)
+    return f"data: {json.dumps({'state': state_str})}\n\n"
 
 async def print_file_path(file_path):
     if not os.path.exists(file_path):
         common.log_event(f"File not Found: {file_path}")
+        return
 
     await printer_client.control.home_axes()
     common.log_event("Axes homed successfully.")
