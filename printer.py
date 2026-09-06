@@ -47,6 +47,25 @@ async def initialize():
     await printer_client.init_control()
     common.log_event("Printer client initialized")
 
+async def start_status_poller():
+    global printer_client
+    while True:
+        await asyncio.sleep(1)
+        if printer_client is None:
+            continue
+
+        try:
+            status = await printer_client.get_printer_status()
+            if status:
+                common.printer_status = status
+        except:
+            continue
+
+async def get_stats():
+    status = common.printer_status
+    
+    return f"data: {json.dumps({'state': status.machine_state})}\n\n"
+
 async def print_file_path(file_path):
     if not os.path.exists(file_path):
         common.log_event(f"File not Found: {file_path}")
@@ -57,10 +76,3 @@ async def print_file_path(file_path):
     common.log_event(f"Uploading {file_path}...")
     await printer_client.job_control.upload_file_path(file_path, start_print=True, level_before_print=False)
     common.log_event("file_path upload complete.")
-
-async def get_stats():
-    if printer_client is None:
-        return f"data: {json.dumps({'state': 'NOT_FOUND'})}\n\n"
-    
-    status = await printer_client.get_printer_status()
-    return f"data: {json.dumps({'state': status.machine_state})}\n\n"

@@ -3,6 +3,7 @@ import time
 
 camera_found = False
 printer_found = False
+printer_status = None
 logs = []
 
 def log_event(message):
