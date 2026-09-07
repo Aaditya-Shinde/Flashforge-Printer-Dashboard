@@ -3,15 +3,17 @@ import asyncio
 import os
 import json
 from flashforge import FlashForgeClient, FiveMClientConnectionOptions, PrinterDiscovery
+from flashforge.models.machine_info import Temperature
 from dotenv import load_dotenv
 
 load_dotenv()
 printer_client = None
+attributes_to_query = ["machine_state", "cooling_fan_speed", "print_bed", "extruder"]
 
 async def initialize():
     global printer_client
 
-    common.printer_stats = f"data: {json.dumps({'state': 'CONNECTING'})}\n\n"
+    common.printer_stats = f"data: {json.dumps({'MACHINE_STATE': 'CONNECTING'})}\n\n"
 
     check_code = os.getenv("CHECK_CODE", "").strip()
     expected_serial = os.getenv("EXPECTED_SERIAL_NUMBER", "").strip()
@@ -56,15 +58,27 @@ async def start_status_poller():
     while True:
         try:
             status = await printer_client.get_printer_status()
+            
             if status is None:
-                common.printer_stats = f"data: {json.dumps({'state': 'DISCONNECTED'})}\n\n"
+                common.printer_stats = f"data: {json.dumps({'MACHINE_STATE': 'DISCONNECTED'})}\n\n"
             else:
-                state = status.machine_state
-                state_str = state.name if hasattr(state, 'name') else str(state)
-                common.printer_stats = f"data: {json.dumps({'state': state_str})}\n\n"
+                data_dictionary = {}
+                for attribute in attributes_to_query:
+                    attribute_val = getattr(status, attribute)
+                    if isinstance(attribute_val, Temperature):
+                        attribute_current_val_str = str(round(attribute_val.current, 1))+"°C"
+                        attribute_set_val_str = str(round(attribute_val.set, 1))+"°C"
+
+                        data_dictionary[attribute.upper()+"_CURRENT"] = attribute_current_val_str
+                        data_dictionary[attribute.upper()+"_SET"] = attribute_set_val_str
+                    else:
+                        attribute_val_str = attribute_val.name if hasattr(attribute_val, 'name') else str(attribute_val)
+                        data_dictionary[attribute.upper()] = attribute_val_str
+
+                common.printer_stats = f"data: {json.dumps(data_dictionary)}\n\n"
                 
-        except:
-            continue
+        except Exception as e:
+            common.log_event("ERROR: "+e)
         
         await asyncio.sleep(2)
 

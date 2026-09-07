@@ -228,7 +228,7 @@
             <div class="box">
                 <div class="box-title">> PRINTER_STATS</div>
                 <div id="printer-stats-content">
-                    <div>STATE: <span style="color: var(--green-bright);">UNKOWN</span></div>
+                    <div>MACHINE_STATE: UNKOWN</div>
                 </div>
                 
                 <div style="margin-top: 10px;" class="box-title">> SYSTEM_NODES</div>
@@ -334,20 +334,15 @@
                 const data = JSON.parse(event.data);
 
                 if (invalidStates.has(data.state)) {
-                    printerStatsContainer.innerHTML = `<div>STATE: <span style="color: var(--green-bright);">${data.state}</span></div>`;
-
                     let curr = document.getElementById("system-nodes").innerHTML.split("<br>");
                     document.getElementById("system-nodes").innerHTML = "> ad5m_tcp: unreachable<br>"+curr[1]+"<br>";
                 } else {
-                    printerStatsContainer.innerHTML = `
-                        <div>STATE: <span style="color: var(--green-bright);">${data.state}</span></div>
-                        <div>NOZZLE_TEMP: 24.0°C / 200°C</div>
-                        <div>BED_TEMP: 25.0°C / 60°C</div>
-                        <div>FAN_SPEED: 0%</div>
-                    `;
-
                     let curr = document.getElementById("system-nodes").innerHTML.split("<br>");
                     document.getElementById("system-nodes").innerHTML = "> ad5m_tcp: connected<br>"+curr[1]+"<br>";
+                }
+                printerStatsContainer.innerHTML = "";
+                for (const [key, value] of Object.entries(data)) {
+                    printerStatsContainer.innerHTML += `<div>${key}: ${value}</div>`;
                 }
                 printerStatsContainer.scrollTop = logContainer.scrollHeight;
             }
