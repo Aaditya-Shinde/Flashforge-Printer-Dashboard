@@ -65,15 +65,13 @@ async def start_status_poller():
                 data_dictionary = {}
                 for attribute in attributes_to_query:
                     attribute_val = getattr(status, attribute)
+                    
                     if isinstance(attribute_val, Temperature):
-                        attribute_current_val_str = str(round(attribute_val.current, 1))+"°C"
-                        attribute_set_val_str = str(round(attribute_val.set, 1))+"°C"
-
-                        data_dictionary[attribute.upper()+"_CURRENT"] = attribute_current_val_str
-                        data_dictionary[attribute.upper()+"_SET"] = attribute_set_val_str
+                        attribute_val_str = f"{round(attribute_val.current, 1)}/{round(attribute_val.set, 1)} °C"
                     else:
                         attribute_val_str = attribute_val.name if hasattr(attribute_val, 'name') else str(attribute_val)
-                        data_dictionary[attribute.upper()] = attribute_val_str
+
+                    data_dictionary[attribute.upper()] = attribute_val_str
 
                 common.printer_stats = f"data: {json.dumps(data_dictionary)}\n\n"
                 
