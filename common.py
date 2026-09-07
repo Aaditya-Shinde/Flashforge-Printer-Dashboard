@@ -3,7 +3,7 @@ import time
 
 camera_found = False
 
-printer_status = None
+printer_stats = None
 
 logs = []
 

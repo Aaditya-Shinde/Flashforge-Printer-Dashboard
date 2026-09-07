@@ -328,10 +328,12 @@
 
             const printerStatsContainer = document.getElementById('printer-stats-content');
             const printerEvtSource = new EventSource('/printer_stats');
+
+            const invalidStates = new Set(["NOT_FOUND", "UNKNOWN", "ERROR", "DISCONNECTED", "CONNECTING"]);
             printerEvtSource.onmessage = function(event){
                 const data = JSON.parse(event.data);
 
-                if (data.state == "NOT_FOUND" || data.state == "UNKNOWN" || data.state == "ERROR"){
+                if (invalidStates.has(data.state)) {
                     printerStatsContainer.innerHTML = `<div>STATE: <span style="color: var(--green-bright);">${data.state}</span></div>`;
 
                     let curr = document.getElementById("system-nodes").innerHTML.split("<br>");

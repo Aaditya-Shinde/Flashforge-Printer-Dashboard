@@ -11,6 +11,8 @@ printer_client = None
 async def initialize():
     global printer_client
 
+    common.printer_stats = f"data: {json.dumps({'state': 'CONNECTING'})}\n\n"
+
     check_code = os.getenv("CHECK_CODE", "").strip()
     expected_serial = os.getenv("EXPECTED_SERIAL_NUMBER", "").strip()
 
@@ -54,21 +56,17 @@ async def start_status_poller():
     while True:
         try:
             status = await printer_client.get_printer_status()
-            if status:
-                common.printer_status = status
+            if status is None:
+                common.printer_stats = f"data: {json.dumps({'state': 'DISCONNECTED'})}\n\n"
+            else:
+                state = status.machine_state
+                state_str = state.name if hasattr(state, 'name') else str(state)
+                common.printer_stats = f"data: {json.dumps({'state': state_str})}\n\n"
+                
         except:
             continue
         
         await asyncio.sleep(2)
-
-async def get_stats():
-    status = getattr(common, 'printer_status', None)
-    if status is None or not hasattr(status, 'machine_state'):
-        return f"data: {json.dumps({'state': 'CONNECTING'})}\n\n"
-    
-    state = status.machine_state
-    state_str = state.name if hasattr(state, 'name') else str(state)
-    return f"data: {json.dumps({'state': state_str})}\n\n"
 
 async def print_file_path(file_path):
     if not os.path.exists(file_path):

@@ -19,7 +19,9 @@ def get_logs():
 def stream_printer_stats():
     def event_stream():
         while True:
-            yield asyncio.run(printer.get_stats())
+            if common.printer_stats == None:
+                common.printer_stats = f"data: {json.dumps({'state': 'UNKNOWN'})}\n\n"
+            yield common.printer_stats
             time.sleep(0.2)
             
     return Response(stream_with_context(event_stream()), mimetype="text/event-stream")
