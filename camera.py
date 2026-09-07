@@ -19,13 +19,13 @@ def initialize():
         picam2.start()
 
         common.log_event("Camera Initialized")
-        return True
+        common.camera_found = True
     except RuntimeError as e:
         if 'No camera number 0 found' in str(e):
             common.log_event("Camera Not Found")
         else:
             common.log_event(f"Unkown Camera Error: {e}...")
-        return False
+        common.camera_found = False
 
 def generate_frames(stream_quality):
     while True:

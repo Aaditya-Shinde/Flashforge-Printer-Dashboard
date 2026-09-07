@@ -27,7 +27,6 @@ def stream_printer_stats():
 @app.route('/stream_logs')
 def stream_logs():
     def event_stream():
-        # Track the starting index for this connection
         last_index = len(common.logs)
         while True:
             if len(common.logs) > last_index:

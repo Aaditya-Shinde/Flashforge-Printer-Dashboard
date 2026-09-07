@@ -298,8 +298,7 @@
                 }
             }
 
-            function addLog(logMessage){
-                        
+            function addLog(logMessage){                
                 logContainer.innerHTML += `${logMessage}<br>`;
                 logContainer.scrollTop = logContainer.scrollHeight;
             }
@@ -344,6 +343,9 @@
                         <div>BED_TEMP: 25.0°C / 60°C</div>
                         <div>FAN_SPEED: 0%</div>
                     `;
+
+                    let curr = document.getElementById("system-nodes").innerHTML.split("<br>");
+                    document.getElementById("system-nodes").innerHTML = "> ad5m_tcp: connected<br>"+curr[1]+"<br>";
                 }
                 printerStatsContainer.scrollTop = logContainer.scrollHeight;
             }

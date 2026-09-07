@@ -14,12 +14,12 @@ async def initialize():
     check_code = os.getenv("CHECK_CODE", "").strip()
     expected_serial = os.getenv("EXPECTED_SERIAL_NUMBER", "").strip()
 
-    print("Scanning for FlashForge printers...")
+    common.log_event("Scanning network...")
     discovery = PrinterDiscovery()
     printers = await discovery.discover()
 
     if not printers:
-        print("No printers found via network discovery.")
+        common.log_event("No printer clients found")
         return
 
     target_printer = printers[0]
@@ -29,7 +29,7 @@ async def initialize():
                 target_printer = p
                 break
 
-    print(f"Connecting to printer at {target_printer.ip_address} (Serial: {target_printer.serial_number})...")
+    common.log_event(f"Printer found at {target_printer.ip_address}")
     
     options = FiveMClientConnectionOptions(
         http_port=target_printer.event_port,
@@ -42,31 +42,30 @@ async def initialize():
         check_code,
         options=options,
     ) as client:
-        print("Connection established. Initializing control session...")
-        await client.init_control()
-        printer_client = client
+        common.log_event(f"Connection established to {client.printer_name}")
 
-    await start_status_poller()
+        await client.init_control()
+        common.log_event("Control session initialized")
+        printer_client = client
 
 async def start_status_poller():
     global printer_client
-
-    print("In status poller")
 
     while True:
         try:
             status = await printer_client.get_printer_status()
             if status:
                 common.printer_status = status
-                print(f"[POLL SUCCESS] Machine State: {status.machine_state}")
         except:
             continue
         
         await asyncio.sleep(2)
 
 async def get_stats():
-    status = common.printer_status
-
+    status = getattr(common, 'printer_status', None)
+    if status is None or not hasattr(status, 'machine_state'):
+        return f"data: {json.dumps({'state': 'CONNECTING'})}\n\n"
+    
     state = status.machine_state
     state_str = state.name if hasattr(state, 'name') else str(state)
     return f"data: {json.dumps({'state': state_str})}\n\n"
