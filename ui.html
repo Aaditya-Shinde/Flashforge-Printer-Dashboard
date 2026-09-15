@@ -269,7 +269,8 @@
             </div>
         </div>
 
-        <script>
+    </body>
+    <script>
             function showCameraError() {
                 const wrapper = document.getElementById('stream-wrapper');
                 wrapper.innerHTML = `
@@ -293,8 +294,8 @@
                     const logContainer = document.getElementById('event-log-content');
                     const timestamp = new Date().toTimeString().split(' ')[0];
                     
-                    logContainer.innerHTML += `<br>[${timestamp}] File selected: ${fileName}`;
-                    logContainer.innerHTML += `<br>[${timestamp}] Pi payload buffer received successfully.`;//move to actual python backend
+                    addLog(`[${timestamp}] File selected: ${fileName}`);
+                    addLog(`[${timestamp}] Pi payload buffer received successfully.`);//move to actual python backend
                 }
             }
 
@@ -322,8 +323,7 @@
             const logEvtSource = new EventSource('/stream_logs');
             logEvtSource.onmessage = function(event) {
                 const data = JSON.parse(event.data);
-                logContainer.innerHTML += `<br>${data.log}`;
-                logContainer.scrollTop = logContainer.scrollHeight;
+                addLog(data.log);
             };
 
             const printerStatsContainer = document.getElementById('printer-stats-content');
@@ -347,6 +347,4 @@
                 printerStatsContainer.scrollTop = logContainer.scrollHeight;
             }
         </script>
-
-    </body>
     </html>

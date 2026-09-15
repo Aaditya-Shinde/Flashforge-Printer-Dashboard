@@ -14,7 +14,8 @@ async def main():
     camera.initialize()
 
     await printer.initialize()
-    await printer.start_status_poller()
+
+    common.keep_open()
 
 if __name__ == "__main__":
     asyncio.run(main())    

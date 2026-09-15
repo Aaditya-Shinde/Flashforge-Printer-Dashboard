@@ -10,3 +10,7 @@ logs = []
 def log_event(message):
     timestamp = time.strftime("%H:%M:%S")
     logs.append(f"[{timestamp}] {message}")
+
+def keep_open():
+    while True:
+        time.sleep(100)

@@ -51,6 +51,7 @@ async def initialize():
         await client.init_control()
         common.log_event("Control session initialized")
         printer_client = client
+        asyncio.create_task(printer.start_status_poller())
 
 async def start_status_poller():
     global printer_client
@@ -76,7 +77,8 @@ async def start_status_poller():
                 common.printer_stats = f"data: {json.dumps(data_dictionary)}\n\n"
                 
         except Exception as e:
-            common.log_event("ERROR: "+e)
+            common.log_event("ERROR: "+str(e))
+            break
         
         await asyncio.sleep(2)
 
