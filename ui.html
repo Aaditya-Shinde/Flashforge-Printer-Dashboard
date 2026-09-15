@@ -333,7 +333,7 @@
             printerEvtSource.onmessage = function(event){
                 const data = JSON.parse(event.data);
 
-                if (invalidStates.has(data.state)) {
+                if (invalidStates.has(data.MACHINE_STATE)) {
                     let curr = document.getElementById("system-nodes").innerHTML.split("<br>");
                     document.getElementById("system-nodes").innerHTML = "> ad5m_tcp: unreachable<br>"+curr[1]+"<br>";
                 } else {
